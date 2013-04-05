@@ -279,48 +279,64 @@ var Game = function() {
  */
 Game.prototype.init = function() {
 	$('#deck').deck();
+    this.card_ids = [];
     this.is_started = false;
+    this.timer = null;
+    this.time  = 0;
 };
 
 Game.prototype.ready = function() {
+    $('#timer').text('00:00');
+    if (this.timer != null) {
+        window.clearInterval(this.timer);
+    }
+    this.time = 0;
+    this.card_ids = [];
+
     $('.card').remove();
     $('.suit').attr('suit', null).attr('max_value', null);
-    var cards = [];
-    for (var i = 4; i >= 1; i--) {
+
+    for (var i = 1; i <= CARD_COUNT; i++) {
         var card_id = 'card' + i;
-        var card = $('<div class="card" id="' + card_id + '"></div>').appendTo($('#deck'));
-        card.card();
-        cards.push(card);
+        this.card_ids.push(card_id);
     }  
-    for (var i = CARD_COUNT; i >= 5; i--) {
-        var card_id = 'card' + i;
-        var card = $('<div class="card" id="' + card_id + '"></div>').appendTo($('#deck'));
-        card.card();
-        cards.push(card);
-    }
+
     //shuffle the cards
-    
     for (var i = 0; i < 10 * CARD_COUNT; i++){
         var j = parseInt(Math.random() * CARD_COUNT);
-        var tmp = cards[parseInt(i / 10)];
-        cards[parseInt(i / 10)] = cards[j]
-        cards[j] = tmp;
+        var tmp = this.card_ids[parseInt(i / 10)];
+        this.card_ids[parseInt(i / 10)] = this.card_ids[j]
+        this.card_ids[j] = tmp;
     }
-    
 
-    while(cards.length > 0) {
-        for (var i = 0; i < 8; i++) {
-            var card = cards.pop();
-            var col = $('#column' + i);
-            col.column('push', card);
-        }
+    this.reload();
+}
+
+Game.prototype.reload = function() {
+    
+    for (var i = 0; i < CARD_COUNT; i++) {
+        var col_index = i % 8;
+        var col = $('#column' + col_index);
+        var card = $('<div class="card" id="' + this.card_ids[i] + '"></div>').appendTo($('#deck'));
+        card.card();
+        col.column('push', card);
     }
+
     this.create_draggables();
 }
 
 Game.prototype.start = function() {
     this.auto_move_to_suits();
     this.is_started = true;
+    var game = this;
+    this.timer = window.setInterval(function(){
+        game.time += 1;
+        var ss = game.time % 60;
+        var mm = (game.time - ss) / 60;
+        if (ss < 10) ss = "0" + ss;
+        if (mm < 10) mm = "0" + mm;
+        $('#timer').text(mm + ":" + ss);
+    }, 1000)
 }
 
 Game.prototype.get_droppable_slots = function(suit, color, value, is_stacked) {
@@ -537,6 +553,7 @@ Game.prototype.create_draggables = function(){
         $('.card, .column, .free, .suit').each(function(){
             $(this).droppable('destroy');
             $(this).draggable('destroy');
+
         });
         // $('.card').unbind('dblclick');
         game.create_draggables();
@@ -596,11 +613,16 @@ window.setTimeout(function(){
     game.start();
 }, 1000)
 
-$('#test').click(function(){
-    game.auto_move_to_suits();
-})
-$('#newgame').click(function(){
+$('#new_game').click(function(){
     game.ready();
+    window.setTimeout(function(){
+        game.start();
+    }, 1000)
+})
+
+
+$('#reload_game').click(function(){
+    game.reload();
     window.setTimeout(function(){
         game.start();
     }, 1000)
