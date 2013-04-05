@@ -588,6 +588,7 @@ Game.prototype.create_draggables = function(){
             delay : 10,
             revertDuration: 100,
             zIndex : 1001,
+            containment : 'document',
             start: game.create_droppables(),
             stop: game.clear_draggables()
         }); 

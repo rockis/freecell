@@ -1,3 +1,4 @@
+html { height : 100%;}
 body {
     font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
     font-size: 0.8em;
@@ -19,7 +20,6 @@ body {
 
 #deck {
     width: :100%;
-    height:1024px;
 }
 
 .card, .slot {
@@ -54,7 +54,7 @@ body {
 }
 
 #timer {
-    font-size:20pt;
+    font-size:2 0pt;
     color:white;
     font-weight: bold; 
 }
